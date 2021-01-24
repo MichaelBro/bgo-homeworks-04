@@ -27,7 +27,7 @@ func (service *Service) Card2Card(from, to string, amount int64) (total int64, o
 
 	total = getTotalWithCommission(amount, service.Commission, service.MinCommissionAmount)
 
-	ok = true
+	ok = false //chek github actions
 
 	if cardFrom != nil {
 		if cardFrom.Balance >= total {
