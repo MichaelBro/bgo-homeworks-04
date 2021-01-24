@@ -14,7 +14,7 @@ func main() {
 		"Visa",
 		"Michael",
 		"Bro",
-		50_000_00,
+		16_125_99,
 		"RUB",
 		"4800 8000 9000 1234",
 	)
@@ -24,7 +24,7 @@ func main() {
 		"MasterCard",
 		"Michael",
 		"Bro",
-		12_000_00,
+		0,
 		"RUB",
 		"5500 8000 1234 9876",
 	)
@@ -34,7 +34,10 @@ func main() {
 
 	serviceTransfer := transfer.NewService(service, 0.5, 10)
 
-	serviceTransfer.Card2Card(visa.Number, master.Number, 10_000_00)
+	total, status := serviceTransfer.Card2Card(visa.Number, master.Number, 5_000_00)
+
+	fmt.Println(total)
+	fmt.Println(status)
 
 	fmt.Println(visa)
 	fmt.Println(master)
