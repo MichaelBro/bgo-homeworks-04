@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	service := card.NewService("Main Bank")
+	service := card.NewService("Main Bank", "5106 21")
 
 	visa := service.IssueCard(
 		1,
@@ -16,7 +16,7 @@ func main() {
 		"Bro",
 		16_125_99,
 		"RUB",
-		"4800 8000 9000 1234",
+		"5106 2100 9000 1234",
 	)
 
 	master := service.IssueCard(

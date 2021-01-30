@@ -21,13 +21,14 @@ func TestService_Card2Card(t *testing.T) {
 		fields    fields
 		args      args
 		wantTotal int64
-		wantOk    bool
+		wantErr   error
 	}{
 		{
-			name: "Карта своего банка -> Карта своего банка (денег достаточно)",
+			name: "№1 Карта своего банка -> Карта своего банка (денег достаточно)",
 			fields: fields{
 				CardSvc: &card.Service{
-					BankName: "Tinkoff",
+					BankName:     "Tinkoff",
+					NumberPrefix: "5106 21",
 					Cards: []*card.Card{
 						{
 							Id:             1,
@@ -36,7 +37,7 @@ func TestService_Card2Card(t *testing.T) {
 							LastNameOwner:  "Bro",
 							Balance:        100_000_00,
 							Currency:       "RUB",
-							Number:         "4444 9999 9000 1234",
+							Number:         "5106 2199 5555 5555",
 							Icon:           "icon.png",
 						},
 						{
@@ -46,7 +47,7 @@ func TestService_Card2Card(t *testing.T) {
 							LastNameOwner:  "Storm",
 							Balance:        50_000_00,
 							Currency:       "RUB",
-							Number:         "5555 7777 9000 1234",
+							Number:         "5106 2199 9000 1234",
 							Icon:           "icon.png",
 						},
 					},
@@ -55,18 +56,19 @@ func TestService_Card2Card(t *testing.T) {
 				MinCommissionAmount: 10,
 			},
 			args: args{
-				from:   "4444 9999 9000 1234",
-				to:     "5555 7777 9000 1234",
+				from:   "5106 2199 5555 5555",
+				to:     "5106 2199 9000 1234",
 				amount: 1000_00,
 			},
 			wantTotal: 1005_00,
-			wantOk:    true,
+			wantErr:   nil,
 		},
 		{
-			name: "Карта своего банка -> Карта своего банка (денег недостаточно)",
+			name: "№2 Карта своего банка -> Карта своего банка (денег недостаточно)",
 			fields: fields{
 				CardSvc: &card.Service{
-					BankName: "Tinkoff",
+					BankName:     "Tinkoff",
+					NumberPrefix: "5106 21",
 					Cards: []*card.Card{
 						{
 							Id:             16,
@@ -75,7 +77,7 @@ func TestService_Card2Card(t *testing.T) {
 							LastNameOwner:  "Bro",
 							Balance:        5000_00,
 							Currency:       "RUB",
-							Number:         "5555 9999 9000 1234",
+							Number:         "5106 2199 5555 5555",
 							Icon:           "icon.png",
 						},
 						{
@@ -85,7 +87,7 @@ func TestService_Card2Card(t *testing.T) {
 							LastNameOwner:  "Storm",
 							Balance:        50_000_00,
 							Currency:       "RUB",
-							Number:         "5555 7777 9000 1234",
+							Number:         "5106 2199 9000 1234",
 							Icon:           "icon.png",
 						},
 					},
@@ -94,18 +96,19 @@ func TestService_Card2Card(t *testing.T) {
 				MinCommissionAmount: 10,
 			},
 			args: args{
-				from:   "5555 9999 9000 1234",
-				to:     "5555 7777 9000 1234",
+				from:   "5106 2199 5555 5555",
+				to:     "5106 2199 9000 1234",
 				amount: 10_000_00,
 			},
 			wantTotal: 10_050_00,
-			wantOk:    false,
+			wantErr:   ErrNotErrNotEnoughMoney,
 		},
 		{
-			name: "Карта своего банка -> Карта чужого банка (денег достаточно)",
+			name: "№3 Карта своего банка -> Карта чужого банка (денег достаточно)",
 			fields: fields{
 				CardSvc: &card.Service{
-					BankName: "Tinkoff",
+					BankName:     "Tinkoff",
+					NumberPrefix: "5106 21",
 					Cards: []*card.Card{
 						{
 							Id:             16,
@@ -114,7 +117,7 @@ func TestService_Card2Card(t *testing.T) {
 							LastNameOwner:  "Down",
 							Balance:        16_125_99,
 							Currency:       "USD",
-							Number:         "1234 9999 9000 1234",
+							Number:         "5106 2199 9000 1234",
 							Icon:           "icon.png",
 						},
 					},
@@ -123,18 +126,19 @@ func TestService_Card2Card(t *testing.T) {
 				MinCommissionAmount: 10,
 			},
 			args: args{
-				from:   "1234 9999 9000 1234",
+				from:   "5106 2199 9000 1234",
 				to:     "5555 7777 9999 1234",
 				amount: 5_000_00,
 			},
 			wantTotal: 5_025_00,
-			wantOk:    true,
+			wantErr:   nil,
 		},
 		{
-			name: "Карта своего банка -> Карта чужого банка (денег недостаточно)",
+			name: "№4 Карта своего банка -> Карта чужого банка (денег недостаточно)",
 			fields: fields{
 				CardSvc: &card.Service{
-					BankName: "Tinkoff",
+					BankName:     "Tinkoff",
+					NumberPrefix: "5106 21",
 					Cards: []*card.Card{
 						{
 							Id:             16,
@@ -143,7 +147,7 @@ func TestService_Card2Card(t *testing.T) {
 							LastNameOwner:  "Down",
 							Balance:        0,
 							Currency:       "USD",
-							Number:         "1234 9999 9000 1234",
+							Number:         "5106 2199 9000 1234",
 							Icon:           "icon.png",
 						},
 					},
@@ -152,18 +156,19 @@ func TestService_Card2Card(t *testing.T) {
 				MinCommissionAmount: 10,
 			},
 			args: args{
-				from:   "1234 9999 9000 1234",
+				from:   "5106 2199 9000 1234",
 				to:     "5555 7777 9999 1234",
 				amount: 10_000_00,
 			},
 			wantTotal: 10_050_00,
-			wantOk:    false,
+			wantErr:   ErrNotErrNotEnoughMoney,
 		},
 		{
-			name: "Карта своего банка -> Карта чужого банка",
+			name: "№5 Карта своего банка -> Карта чужого банка",
 			fields: fields{
 				CardSvc: &card.Service{
-					BankName: "Tinkoff",
+					BankName:     "Tinkoff",
+					NumberPrefix: "5106 21",
 					Cards: []*card.Card{
 						{
 							Id:             333,
@@ -172,7 +177,7 @@ func TestService_Card2Card(t *testing.T) {
 							LastNameOwner:  "Chock",
 							Balance:        10_500_00,
 							Currency:       "USD",
-							Number:         "6666 9999 9000 1234",
+							Number:         "5106 2199 9000 1234",
 							Icon:           "icon.png",
 						},
 					},
@@ -181,18 +186,19 @@ func TestService_Card2Card(t *testing.T) {
 				MinCommissionAmount: 10,
 			},
 			args: args{
-				from:   "6666 9999 9000 1234",
+				from:   "5106 2199 9000 1234",
 				to:     "1234 9999 9000 1234",
 				amount: 10_000_00,
 			},
 			wantTotal: 10_050_00,
-			wantOk:    true,
+			wantErr:   nil,
 		},
 		{
-			name: "Карта чужого банка -> Карта своего банка",
+			name: " №6 Карта чужого банка -> Карта своего банка",
 			fields: fields{
 				CardSvc: &card.Service{
-					BankName: "Tinkoff",
+					BankName:     "Tinkoff",
+					NumberPrefix: "5106 21",
 					Cards: []*card.Card{
 						{
 							Id:             333,
@@ -201,7 +207,7 @@ func TestService_Card2Card(t *testing.T) {
 							LastNameOwner:  "Chock",
 							Balance:        10_500_00,
 							Currency:       "USD",
-							Number:         "6666 9999 9000 1234",
+							Number:         "5106 2199 9000 1234",
 							Icon:           "icon.png",
 						},
 					},
@@ -211,18 +217,19 @@ func TestService_Card2Card(t *testing.T) {
 			},
 			args: args{
 				from:   "1234 9999 9000 1234",
-				to:     "6666 9999 9000 1234",
+				to:     "5106 2199 9000 1234",
 				amount: 10_000_00,
 			},
 			wantTotal: 10_050_00,
-			wantOk:    true,
+			wantErr:   nil,
 		},
 		{
-			name: "Карта чужого банка -> Карта чужого банка",
+			name: "№7 Карта чужого банка -> Карта чужого банка",
 			fields: fields{
 				CardSvc: &card.Service{
-					BankName: "Tinkoff",
-					Cards:    []*card.Card{},
+					BankName:     "Tinkoff",
+					NumberPrefix: "5106 21",
+					Cards:        []*card.Card{},
 				},
 				Commission:          0.5,
 				MinCommissionAmount: 10,
@@ -233,7 +240,7 @@ func TestService_Card2Card(t *testing.T) {
 				amount: 10_000_00,
 			},
 			wantTotal: 10_050_00,
-			wantOk:    true,
+			wantErr:   nil,
 		},
 	}
 	for _, tt := range tests {
@@ -242,12 +249,13 @@ func TestService_Card2Card(t *testing.T) {
 			Commission:          tt.fields.Commission,
 			MinCommissionAmount: tt.fields.MinCommissionAmount,
 		}
-		gotTotal, gotOk := service.Card2Card(tt.args.from, tt.args.to, tt.args.amount)
+		gotTotal, gotError := service.Card2Card(tt.args.from, tt.args.to, tt.args.amount)
+		if gotError != tt.wantErr {
+			t.Errorf("\n test: %v \n Card2Card() gotError = %v, want %v", tt.name, gotError, tt.wantErr)
+			return
+		}
 		if gotTotal != tt.wantTotal {
 			t.Errorf("\n test: %v \n Card2Card() gotTotal = %v, want %v", tt.name, gotTotal, tt.wantTotal)
-		}
-		if gotOk != tt.wantOk {
-			t.Errorf("\n test: %v \n Card2Card() gotOk = %v, want %v", tt.name, gotOk, tt.wantOk)
 		}
 	}
 }

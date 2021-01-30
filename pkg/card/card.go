@@ -1,5 +1,10 @@
 package card
 
+import (
+	"errors"
+	"strings"
+)
+
 type Card struct {
 	Id             int64
 	Issuer         string
@@ -12,14 +17,16 @@ type Card struct {
 }
 
 type Service struct {
-	BankName string
-	Cards    []*Card
+	BankName     string
+	NumberPrefix string
+	Cards        []*Card
 }
 
-func NewService(bankName string) *Service {
+func NewService(bankName, numberPrefix string) *Service {
 	return &Service{
-		BankName: bankName,
-		Cards:    nil,
+		BankName:     bankName,
+		NumberPrefix: numberPrefix,
+		Cards:        nil,
 	}
 }
 
@@ -46,11 +53,17 @@ func (service *Service) IssueCard(
 	return card
 }
 
-func (service Service) SearchByNumber(number string) *Card {
+var ErrCardNotFound = errors.New("card not found")
+
+func (service *Service) SearchByNumber(number string) (*Card, error) {
 	for _, card := range service.Cards {
-		if card.Number == number {
-			return card
+		if card.Number == number && BelongsToABank(number, service.NumberPrefix) {
+			return card, nil
 		}
 	}
-	return nil
+	return nil, ErrCardNotFound
+}
+
+func BelongsToABank(numberCard, prefix string) bool {
+	return strings.HasPrefix(numberCard, prefix)
 }

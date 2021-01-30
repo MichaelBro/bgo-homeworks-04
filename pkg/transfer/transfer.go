@@ -27,18 +27,18 @@ var (
 	ErrNotErrNotEnoughMoney = errors.New("not enough money")
 )
 
-func (service *Service) Card2Card(from, to string, amount int64) (total int64, err error) {
+func (service *Service) Card2Card(from, to string, amount int64) (int64, error) {
 
-	cardFrom := service.CardSvc.SearchByNumber(from)
-	cardTo := service.CardSvc.SearchByNumber(to)
+	cardFrom, errCardFrom := service.CardSvc.SearchByNumber(from)
+	cardTo, errCardTo := service.CardSvc.SearchByNumber(to)
 
-	total = getTotalWithCommission(amount, service.Commission, service.MinCommissionAmount)
+	total := getTotalWithCommission(amount, service.Commission, service.MinCommissionAmount)
 
-	if cardFrom == nil && cardTo == nil {
+	if errCardFrom != nil && errCardTo != nil {
 		return total, nil
 	}
 
-	if cardFrom == nil && cardTo != nil {
+	if errCardFrom != nil && errCardTo == nil {
 		cardTo.Balance += amount
 		return total, nil
 	}
@@ -47,7 +47,7 @@ func (service *Service) Card2Card(from, to string, amount int64) (total int64, e
 		return total, ErrNotErrNotEnoughMoney
 	}
 
-	if cardTo == nil && cardFrom != nil {
+	if errCardFrom == nil && errCardTo != nil {
 		cardFrom.Balance -= total
 		return total, nil
 	}
