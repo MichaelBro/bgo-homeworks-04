@@ -1,6 +1,9 @@
 package transfer
 
-import "bgo-homeworks-04/pkg/card"
+import (
+	"bgo-homeworks-04/pkg/card"
+	"errors"
+)
 
 type Service struct {
 	CardSvc             *card.Service
@@ -20,7 +23,11 @@ func NewService(
 	}
 }
 
-func (service *Service) Card2Card(from, to string, amount int64) (total int64, ok bool) {
+var (
+	ErrNotErrNotEnoughMoney = errors.New("not enough money")
+)
+
+func (service *Service) Card2Card(from, to string, amount int64) (total int64, err error) {
 
 	cardFrom := service.CardSvc.SearchByNumber(from)
 	cardTo := service.CardSvc.SearchByNumber(to)
@@ -28,27 +35,27 @@ func (service *Service) Card2Card(from, to string, amount int64) (total int64, o
 	total = getTotalWithCommission(amount, service.Commission, service.MinCommissionAmount)
 
 	if cardFrom == nil && cardTo == nil {
-		return total, true
+		return total, nil
 	}
 
 	if cardFrom == nil && cardTo != nil {
 		cardTo.Balance += amount
-		return total, true
+		return total, nil
 	}
 
 	if cardFrom.Balance < total {
-		return total, false
+		return total, ErrNotErrNotEnoughMoney
 	}
 
 	if cardTo == nil && cardFrom != nil {
 		cardFrom.Balance -= total
-		return total, true
+		return total, nil
 	}
 
 	cardFrom.Balance -= total
 	cardTo.Balance += total
 
-	return total, true
+	return total, nil
 }
 
 func getTotalWithCommission(amount int64, serviceCommission float64, minCommissionAmount int64) (total int64) {

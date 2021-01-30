@@ -34,11 +34,13 @@ func main() {
 
 	serviceTransfer := transfer.NewService(service, 0.5, 10)
 
-	total, status := serviceTransfer.Card2Card(visa.Number, master.Number, 5_000_00)
+	total, err := serviceTransfer.Card2Card(visa.Number, master.Number, 5_000_00)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	fmt.Println(total)
-	fmt.Println(status)
-
 	fmt.Println(visa)
 	fmt.Println(master)
 
