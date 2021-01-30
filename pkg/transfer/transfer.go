@@ -3,6 +3,8 @@ package transfer
 import (
 	"bgo-homeworks-04/pkg/card"
 	"errors"
+	"strconv"
+	"strings"
 )
 
 type Service struct {
@@ -25,9 +27,14 @@ func NewService(
 
 var (
 	ErrNotErrNotEnoughMoney = errors.New("not enough money")
+	ErrInvalidCardNumber    = errors.New("wrong card number")
 )
 
 func (service *Service) Card2Card(from, to string, amount int64) (int64, error) {
+
+	if !IsValid(from) || !IsValid(to) {
+		return 0, ErrInvalidCardNumber
+	}
 
 	cardFrom, errCardFrom := service.CardSvc.SearchByNumber(from)
 	cardTo, errCardTo := service.CardSvc.SearchByNumber(to)
@@ -66,4 +73,31 @@ func getTotalWithCommission(amount int64, serviceCommission float64, minCommissi
 	}
 
 	return amount + commission
+}
+
+func IsValid(cardNumber string) bool {
+	cardNumber = strings.ReplaceAll(cardNumber, " ", "")
+
+	if len(cardNumber) != 16 {
+		return false
+	}
+
+	stringSlice := strings.Split(cardNumber, "")
+	sum := 0
+
+	for i, s := range stringSlice {
+		number, err := strconv.Atoi(s)
+		if err != nil {
+			return false
+		}
+
+		if i%2 == 0 {
+			number *= 2
+			if number > 9 {
+				number -= 9
+			}
+		}
+		sum += number
+	}
+	return sum%10 == 0
 }

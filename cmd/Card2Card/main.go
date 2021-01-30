@@ -16,7 +16,7 @@ func main() {
 		"Bro",
 		16_125_99,
 		"RUB",
-		"5106 2100 9000 1234",
+		"5106 2112 1234 5461",
 	)
 
 	master := service.IssueCard(
@@ -26,11 +26,20 @@ func main() {
 		"Bro",
 		0,
 		"RUB",
-		"5500 8000 1234 9876",
+		"4561 2612 1234 5467",
 	)
 
 	fmt.Println(visa)
+	fmt.Println(transfer.IsValid(visa.Number))
+
 	fmt.Println(master)
+	fmt.Println(transfer.IsValid(master.Number))
+
+	inValidNumber := "4561 2612 1234 5464"
+	validNumber := "4561 2612 1234 5467"
+
+	fmt.Println(transfer.IsValid(inValidNumber))
+	fmt.Println(transfer.IsValid(validNumber))
 
 	serviceTransfer := transfer.NewService(service, 0.5, 10)
 
@@ -38,6 +47,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		fmt.Println(total)
 	}
 
 	fmt.Println(total)
