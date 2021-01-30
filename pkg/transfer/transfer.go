@@ -27,21 +27,28 @@ func (service *Service) Card2Card(from, to string, amount int64) (total int64, o
 
 	total = getTotalWithCommission(amount, service.Commission, service.MinCommissionAmount)
 
-	ok = true
-
-	if cardFrom != nil {
-		if cardFrom.Balance >= total {
-			cardFrom.Balance -= total
-		} else {
-			ok = false
-		}
+	if cardFrom == nil && cardTo == nil {
+		return total, true
 	}
 
-	if cardTo != nil {
+	if cardFrom == nil && cardTo != nil {
 		cardTo.Balance += amount
+		return total, true
 	}
 
-	return
+	if cardFrom.Balance < total {
+		return total, false
+	}
+
+	if cardTo == nil && cardFrom != nil {
+		cardFrom.Balance -= total
+		return total, true
+	}
+
+	cardFrom.Balance -= total
+	cardTo.Balance += total
+
+	return total, true
 }
 
 func getTotalWithCommission(amount int64, serviceCommission float64, minCommissionAmount int64) (total int64) {

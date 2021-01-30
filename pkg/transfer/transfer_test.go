@@ -217,6 +217,24 @@ func TestService_Card2Card(t *testing.T) {
 			wantTotal: 10_050_00,
 			wantOk:    true,
 		},
+		{
+			name: "Карта чужого банка -> Карта чужого банка",
+			fields: fields{
+				CardSvc: &card.Service{
+					BankName: "Tinkoff",
+					Cards:    []*card.Card{},
+				},
+				Commission:          0.5,
+				MinCommissionAmount: 10,
+			},
+			args: args{
+				from:   "1234 9999 9000 1234",
+				to:     "6666 9999 9000 1234",
+				amount: 10_000_00,
+			},
+			wantTotal: 10_050_00,
+			wantOk:    true,
+		},
 	}
 	for _, tt := range tests {
 		service := &Service{
@@ -226,10 +244,10 @@ func TestService_Card2Card(t *testing.T) {
 		}
 		gotTotal, gotOk := service.Card2Card(tt.args.from, tt.args.to, tt.args.amount)
 		if gotTotal != tt.wantTotal {
-			t.Errorf("Card2Card() gotTotal = %v, want %v", gotTotal, tt.wantTotal)
+			t.Errorf("\n test: %v \n Card2Card() gotTotal = %v, want %v", tt.name, gotTotal, tt.wantTotal)
 		}
 		if gotOk != tt.wantOk {
-			t.Errorf("Card2Card() gotOk = %v, want %v", gotOk, tt.wantOk)
+			t.Errorf("\n test: %v \n Card2Card() gotOk = %v, want %v", tt.name, gotOk, tt.wantOk)
 		}
 	}
 }
