@@ -24,7 +24,7 @@ func TestService_Card2Card(t *testing.T) {
 		wantErr   error
 	}{
 		{
-			name: "№1 Карта своего банка -> Карта своего банка (денег достаточно)",
+			name: "1 Карта своего банка -> Карта своего банка (денег достаточно)",
 			fields: fields{
 				CardSvc: &card.Service{
 					BankName:     "Tinkoff",
@@ -57,7 +57,7 @@ func TestService_Card2Card(t *testing.T) {
 			},
 			args: args{
 				from:   "5106 2146 1200 5461",
-				to:     "5106 2112 1234 5461",
+				to:     "5106 2146 1200 5008",
 				amount: 1000_00,
 			},
 			wantTotal: 1005_00,
@@ -295,5 +295,59 @@ func TestService_Card2Card(t *testing.T) {
 		if gotTotal != tt.wantTotal {
 			t.Errorf("\n test: %v \n Card2Card() gotTotal = %v, want %v", tt.name, gotTotal, tt.wantTotal)
 		}
+	}
+}
+
+func TestIsValid(t *testing.T) {
+	type args struct {
+		cardNumber string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "#1 valid number",
+			args: args{
+				cardNumber: "49927398716",
+			},
+			want: true,
+		},
+		{
+			name: "#2 valid number",
+			args: args{
+				cardNumber: "79927398713",
+			},
+			want: true,
+		},
+		{
+			name: "#4 invalid number",
+			args: args{
+				cardNumber: "1234567812345678",
+			},
+			want: false,
+		},
+		{
+			name: "#5 invalid number",
+			args: args{
+				cardNumber: "49927398-716",
+			},
+			want: false,
+		},
+		{
+			name: "#5 valid number",
+			args: args{
+				cardNumber: "5106 2146 1200 5461",
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IsValid(tt.args.cardNumber); got != tt.want {
+				t.Errorf("IsValid() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

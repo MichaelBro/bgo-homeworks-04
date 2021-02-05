@@ -78,14 +78,19 @@ func getTotalWithCommission(amount int64, serviceCommission float64, minCommissi
 func IsValid(cardNumber string) bool {
 	stringSlice := strings.Split(strings.ReplaceAll(cardNumber, " ", ""), "")
 
-	sum := 0
+	reverseSlice := make([]int, 0)
 	for i := len(stringSlice) - 1; i >= 0; i-- { //reverse reading characters from a slice
 		number, err := strconv.Atoi(stringSlice[i])
 		if err != nil {
 			return false
 		}
+		reverseSlice = append(reverseSlice, number)
+	}
 
-		if i%2 == 0 {
+	sum := 0
+	for i := 0; i < len(reverseSlice); i++ {
+		number := reverseSlice[i]
+		if (i % 2) != 0 {
 			number *= 2
 			if number > 9 {
 				number -= 9
@@ -93,5 +98,5 @@ func IsValid(cardNumber string) bool {
 		}
 		sum += number
 	}
-	return sum%10 == 0
+	return (sum % 10) == 0
 }
